@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prompt Practice Range</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">Prompt Practice Range</div>
+    <div class="tagline">Practice reps for working with AI — graded on how you prompt, not just what you get.</div>
+  </header>
+
+  <main>
+    <section id="scenario-panel" class="card">
+      <h2 id="scenario-title">Loading scenario…</h2>
+      <p id="scenario-brief"></p>
+      <div class="turns-indicator">
+        Turns used: <span id="turns-used">0</span> / <span id="turns-max">-</span>
+      </div>
+    </section>
+
+    <section id="chat-panel" class="card">
+      <div id="chat-log"></div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="Ask the AI assistant for help drafting the email…" rows="2"></textarea>
+        <button id="send-btn">Send</button>
+      </div>
+    </section>
+
+    <section id="submit-panel" class="card">
+      <h3>Your final email</h3>
+      <p class="hint">Paste the version you'd actually send — edit it yourself if needed.</p>
+      <textarea id="final-email" rows="8" placeholder="Paste your final email here…"></textarea>
+      <button id="grade-btn">Submit for grading</button>
+    </section>
+
+    <section id="result-panel" class="card hidden">
+      <h3>Your prompting score</h3>
+      <div id="score-bars"></div>
+      <div id="overall-score"></div>
+      <p id="verdict"></p>
+      <div class="feedback-grid">
+        <div><strong>Strength</strong><p id="strength"></p></div>
+        <div><strong>Improve next time</strong><p id="improve"></p></div>
+      </div>
+      <button id="restart-btn">Try another attempt</button>
+    </section>
+  </main>
+
+  <footer>
+    Prototype for Tai Labs — built by Dulakshi Gammanpila.
+  </footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
