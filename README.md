@@ -7,6 +7,10 @@ not just on whether the final output looks fine.
 
 Built for the Tai Labs final assessment by Dulakshi Gammanpila.
 
+## Live demo
+
+https://prompt-practice-range.mangoforest-74886e44.southeastasia.azurecontainerapps.io/
+
 ## What works today
 
 - One scripted task scenario (client apology email for a delayed shipment)
@@ -35,59 +39,3 @@ Built for the Tai Labs final assessment by Dulakshi Gammanpila.
   consistency, and add a few worked "gold" transcripts to calibrate against
 
 ## Architecture
-
-```
-Browser (static HTML/CSS/JS)
-      |
-      v
-FastAPI service (main.py)
-  ├── GET  /api/scenario   -> task brief + turn limit
-  ├── POST /api/chat       -> proxies one turn to Claude (assistant role)
-  ├── POST /api/grade      -> sends transcript + final email to Claude,
-  │                           parses structured JSON rubric score
-  └── /                    -> serves static/ (index.html, app.js, style.css)
-```
-
-Model: `llama-3.3-70b-versatile` via the Groq API (OpenAI-compatible chat
-completions endpoint) — free-tier friendly and fast enough for both the
-in-scenario assistant and the grading pass. No database; state lives in the
-browser tab for the duration of one attempt.
-
-## Run locally
-
-```bash
-pip install -r requirements.txt
-export GROQ_API_KEY=gsk_...   # get one free at console.groq.com/keys
-uvicorn main:app --reload
-```
-
-Then open http://localhost:8000
-
-## Deploy (Render, free tier, no login wall for visitors)
-
-1. Push this repo to GitHub (public).
-2. Go to https://render.com → New → Web Service → connect the repo.
-3. Environment: **Docker** (it will pick up the included `Dockerfile`
-   automatically) — or if you'd rather skip Docker, choose Python, with
-   Build Command `pip install -r requirements.txt` and Start Command
-   `uvicorn main:app --host 0.0.0.0 --port $PORT`.
-4. Add an environment variable: `GROQ_API_KEY` = your key.
-5. Deploy. Render gives you a public URL like
-   `https://prompt-practice-range.onrender.com` — that's the live link.
-
-Free-tier note: the service spins down after inactivity and takes ~30-50s to
-wake on the next visit — mention this if a reviewer's first load feels slow.
-
-### Alternative: Azure Container Apps
-
-Same pattern as the NeuraScan deploy — build the image from the included
-`Dockerfile`, push to Azure Container Registry, deploy as a Container App,
-set `GROQ_API_KEY` as a secret/env var on the container.
-
-## How to know it's working
-
-- `GET /health` returns `{"status": "ok", "model_key_configured": true}` —
-  confirms the service is up and the API key is present without exposing it.
-- Manual smoke test: load the page, send 1-2 chat turns, submit a final
-  email, confirm a score renders. This is the fixed test path used to verify
-  every deploy.
