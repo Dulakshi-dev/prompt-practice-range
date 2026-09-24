@@ -39,3 +39,64 @@ https://prompt-practice-range.mangoforest-74886e44.southeastasia.azurecontainera
   consistency, and add a few worked "gold" transcripts to calibrate against
 
 ## Architecture
+
+Browser (static HTML/CSS/JS)
+|
+v
+FastAPI service (main.py)
+├── GET /api/scenario -> task brief + turn limit
+├── POST /api/chat -> proxies one turn to the assistant model (Groq)
+├── POST /api/grade -> sends transcript + final email to Groq,
+│ parses structured JSON rubric score
+└── / -> serves static/ (index.html, app.js, style.css)
+
+
+Model: `openai/gpt-oss-120b` via the Groq API (OpenAI-compatible chat
+completions endpoint) — fast and capable enough for both the in-scenario
+assistant and the grading pass. No database; state lives in the browser tab
+for the duration of one attempt.
+
+## Run locally
+
+```bash
+pip install -r requirements.txt
+export GROQ_API_KEY=gsk_...   # get one free at console.groq.com/keys
+uvicorn main:app --reload
+```
+
+Then open http://localhost:8000
+
+## Deploy (Azure Container Apps — how the live demo above is running)
+
+1. Push this repo to GitHub (public).
+2. In the Azure portal, create a Container App pointed at this repo, using
+   the included `Dockerfile`.
+3. Enable ingress: accepting traffic from anywhere, target port `8000`.
+4. Connect Deployment Center to this GitHub repo (branch `main`) so it
+   builds and deploys automatically via GitHub Actions on every push.
+5. Add an environment variable on the container: `GROQ_API_KEY` = your key.
+6. Azure gives you a public `.azurecontainerapps.io` URL — that's the live
+   link.
+
+### Alternative: Render (free tier, no login wall for visitors)
+
+1. Push this repo to GitHub (public).
+2. Go to https://render.com → New → Web Service → connect the repo.
+3. Environment: **Docker** (it will pick up the included `Dockerfile`
+   automatically) — or if you'd rather skip Docker, choose Python, with
+   Build Command `pip install -r requirements.txt` and Start Command
+   `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+4. Add an environment variable: `GROQ_API_KEY` = your key.
+5. Deploy. Render gives you a public URL like
+   `https://prompt-practice-range.onrender.com`.
+
+Free-tier note (Render): the service spins down after inactivity and takes
+~30-50s to wake on the next visit.
+
+## How to know it's working
+
+- `GET /health` returns `{"status": "ok", "model_key_configured": true}` —
+  confirms the service is up and the API key is present without exposing it.
+- Manual smoke test: load the page, send 1-2 chat turns, submit a final
+  email, confirm a score renders. This is the fixed test path used to verify
+  every deploy.
